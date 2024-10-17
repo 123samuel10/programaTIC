@@ -1,7 +1,10 @@
 package org.example.service.impl;
 
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import org.bson.Document;
+import org.bson.conversions.Bson;
 import org.example.model.MongoDBConnection;
 import org.example.model.RecursoTIC;
 import org.example.service.GestorRecursosService;
@@ -78,20 +81,43 @@ public class GestorRecursosServiceImpl implements GestorRecursosService {
 // y no necesitan implementar el patrón Builder.
     @Override
     public boolean actualizarRecurso(String codigo, RecursoTIC nuevoRecurso) {
+        // Buscar el recurso en la lista en memoria primero
         RecursoTIC recurso = buscarRecurso(codigo);
+
         if (recurso != null) {
-            // Creamos un nuevo recurso usando el Builder con los valores actualizados
+            // Actualizar en memoria
             RecursoTIC recursoActualizado = new RecursoTIC.Builder(recurso.getCodigo())
                     .setNombre(nuevoRecurso.getNombre())
                     .setTipo(nuevoRecurso.getTipo())
                     .setEstado(nuevoRecurso.getEstado())
                     .build();
 
-            // Reemplazar el recurso antiguo con el actualizado
             recursos.remove(recurso);
             recursos.add(recursoActualizado);
-            return true;
+
+            // Ahora, actualizar el recurso en MongoDB
+            Bson filtro = Filters.eq("codigo", codigo);
+
+            // Actualizamos los campos necesarios
+            //Bson es una interfaz en la API de MongoDB para Java que representa una estructura de datos en formato BSON (Binary JSON).
+            //Ejemplo de uso de Bson en tu código: Filtros, Actualizaciones
+            Bson actualizacion = Updates.combine(
+                    Updates.set("nombre", nuevoRecurso.getNombre()),
+                    Updates.set("tipo", nuevoRecurso.getTipo()),
+                    Updates.set("estado", nuevoRecurso.getEstado())
+            );
+
+            // Se utiliza findOneAndUpdate para buscar y actualizar el recurso en la base de datos.
+            Document recursoActualizadoEnDB = coleccion.findOneAndUpdate(filtro, actualizacion);
+
+            if (recursoActualizadoEnDB != null) {
+                System.out.println("Recurso actualizado en MongoDB: " + recursoActualizado);
+                return true;
+            } else {
+                System.out.println("No se encontró el recurso con el código: " + codigo);
+            }
         }
+
         return false;
     }
 
