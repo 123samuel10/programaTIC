@@ -72,7 +72,25 @@ public class GestorRecursosServiceImpl implements GestorRecursosService {
 
     @Override
     public List<RecursoTIC> listarRecursos() {
-        return recursos;//retorna el recurso
+        // Lista para almacenar los recursos de MongoDB
+        List<RecursoTIC> recursosDB = new ArrayList<>();
+
+        // Leer todos los documentos de la colección MongoDB
+        for (Document doc : coleccion.find()) {
+            // Convertir cada documento en un objeto RecursoTIC y agregarlo a la lista
+            RecursoTIC recurso = new RecursoTIC.Builder(doc.getString("codigo"))
+                    .setNombre(doc.getString("nombre"))
+                    .setTipo(doc.getString("tipo"))
+                    .setEstado(doc.getString("estado"))
+                    .build();
+            recursosDB.add(recurso);
+        }
+
+        // Combinar los recursos en memoria y los de la base de datos
+        List<RecursoTIC> todosRecursos = new ArrayList<>(recursos); // recursos en memoria
+        todosRecursos.addAll(recursosDB); // agregar recursos de MongoDB
+
+        return todosRecursos; // devolver todos los recursos
     }
 //El patrón Builder se usa para crear nuevas instancias de RecursoTIC en el método crearRecurso
 // y en el proceso de actualización donde se crea un nuevo recurso.
@@ -123,11 +141,28 @@ public class GestorRecursosServiceImpl implements GestorRecursosService {
 
     @Override
     public RecursoTIC buscarRecurso(String codigo) {
+        // Primero busca en la lista en memoria
         for (RecursoTIC recurso : recursos) {
             if (recurso.getCodigo().equals(codigo)) {
                 return recurso;
             }
         }
+
+        // Si no se encuentra en memoria, busca en MongoDB
+        Document doc = coleccion.find(Filters.eq("codigo", codigo)).first();
+
+        if (doc != null) {
+            // Convierte el documento de MongoDB en un objeto RecursoTIC
+            RecursoTIC recurso = new RecursoTIC.Builder(doc.getString("codigo"))
+                    .setNombre(doc.getString("nombre"))
+                    .setTipo(doc.getString("tipo"))
+                    .setEstado(doc.getString("estado"))
+                    .build();
+
+            return recurso;
+        }
+
+        // Si no se encuentra en ningún lado, retorna null
         return null;
     }
 
