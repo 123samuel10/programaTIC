@@ -34,10 +34,10 @@ public class RecursoTICController {
 
     // Método para crear un nuevo recurso usando el Builder
     public RecursoTIC crearRecurso(String codigo, String nombre, String tipo, String estado) {
-        return new RecursoTIC.Builder(codigo)
-                .setNombre(nombre)
-                .setTipo(tipo)
-                .setEstado(estado)
-                .build();
+        return new RecursoTIC.Builder(codigo) // 1. Se inicializa el Builder pasando el código.
+                .setNombre(nombre)  // // 2. Se establece el valor del nombre
+                .setTipo(tipo)     // 3. Se establece el valor del tipo.
+                .setEstado(estado)   // 4. Se establece el valor del estado.
+                .build(); //   5. Finalmente, se construye y devuelve el objeto RecursoTIC.
     }
 }

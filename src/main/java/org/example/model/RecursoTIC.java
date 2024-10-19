@@ -63,6 +63,7 @@ public class RecursoTIC {
             return this;
         }
 
+        //construir el builder
         public RecursoTIC build() {
             // Aquí this hace referencia a la instancia de Builder
             return new RecursoTIC(this);
