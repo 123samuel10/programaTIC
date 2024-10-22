@@ -7,7 +7,7 @@ import java.util.List;
 
 public class RecursoTICController {
 
-  // GestorRecursosServiceImpl servicio = new GestorRecursosServiceImpl();
+
 
     private GestorRecursosServiceImpl servicio;
 
