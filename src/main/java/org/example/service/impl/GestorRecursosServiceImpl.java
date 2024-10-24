@@ -168,6 +168,12 @@ public class GestorRecursosServiceImpl implements GestorRecursosService {
 
         if (doc != null) {
             // Convierte el documento en un objeto RecursoTIC
+            /*
+             Aquí, estamos creando una nueva instancia de la clase interna Builder.
+             El constructor del Builder requiere un parámetro obligatorio: el código del recurso (codigo).
+             El valor de codigo se obtiene del documento de MongoDB (doc), usando doc.getString("codigo").
+             */
+
             RecursoTIC recurso = new RecursoTIC.Builder(doc.getString("codigo"))
                     .setNombre(doc.getString("nombre"))
                     .setTipo(doc.getString("tipo"))
